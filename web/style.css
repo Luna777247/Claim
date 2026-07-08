@@ -176,7 +176,7 @@ body {
   overflow: hidden;
 }
 
-.export-dropdown:hover .dropdown-menu {
+.export-dropdown.show .dropdown-menu {
   display: block;
 }
 
@@ -932,4 +932,36 @@ input:checked + .slider:before {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--primary-color);
+}
+
+/* Print Styles */
+@media print {
+  body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-main) !important;
+  }
+  .app-header, .app-sidebar, .zoom-controls, .legend-panel {
+    display: none !important;
+  }
+  .app-container {
+    display: block !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+  }
+  .graph-viewer {
+    width: 100% !important;
+    height: 100% !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+  }
+  .canvas-container {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  #graph-svg {
+    width: 100% !important;
+    height: 100% !important;
+  }
 }

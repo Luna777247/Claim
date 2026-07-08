@@ -317,6 +317,21 @@ function setupEventListeners() {
     });
   }
 
+  // Export Dropdown Click Toggle
+  const dropdown = document.querySelector('.export-dropdown');
+  const dropdownToggle = document.querySelector('.export-dropdown .dropdown-toggle');
+  if (dropdown && dropdownToggle) {
+    dropdownToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle('show');
+    });
+    
+    // Close dropdown when clicking outside
+    window.addEventListener('click', () => {
+      dropdown.classList.remove('show');
+    });
+  }
+
   // Export buttons
   document.getElementById('btn-export-svg').addEventListener('click', exportToSVG);
   document.getElementById('btn-export-png').addEventListener('click', exportToPNG);
@@ -1231,10 +1246,85 @@ function exportToSVG() {
 
 // 2. Export PNG
 function exportToPNG() {
-  alert("Vui lòng sử dụng script export.js để sinh file PNG chất lượng cao, hoặc sử dụng tính năng in của trình duyệt.");
+  try {
+    const svgClone = svg.cloneNode(true);
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+    
+    Object.values(domainPositions).forEach(pos => {
+      minX = Math.min(minX, pos.x);
+      minY = Math.min(minY, pos.y);
+      maxX = Math.max(maxX, pos.x + pos.width);
+      maxY = Math.max(maxY, pos.y + pos.height);
+    });
+    
+    if (minX === Infinity) {
+      minX = 0; minY = 0; maxX = 2000; maxY = 2000;
+    } else {
+      minX -= 50;
+      minY -= 50;
+      maxX += 50;
+      maxY += 50;
+    }
+    
+    const width = maxX - minX;
+    const height = maxY - minY;
+    
+    const exportViewport = svgClone.getElementById('viewport-group');
+    exportViewport.removeAttribute('transform');
+    
+    svgClone.setAttribute('width', width);
+    svgClone.setAttribute('height', height);
+    svgClone.setAttribute('viewBox', `${minX} ${minY} ${width} ${height}`);
+    
+    const styleEl = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+    fetch('style.css')
+      .then(r => r.text())
+      .then(css => {
+        const backgroundCss = `svg { background-color: ${document.body.classList.contains('light-theme') ? '#f1f5f9' : '#0b0f19'}; }\n`;
+        styleEl.textContent = backgroundCss + css;
+        svgClone.insertBefore(styleEl, svgClone.firstChild);
+        
+        const svgString = new XMLSerializer().serializeToString(svgClone);
+        const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          // Scale by 1.5x for high resolution export
+          const scale = 1.5;
+          canvas.width = width * scale;
+          canvas.height = height * scale;
+          
+          const ctx = canvas.getContext('2d');
+          ctx.scale(scale, scale);
+          ctx.drawImage(img, 0, 0);
+          
+          const pngUrl = canvas.toDataURL('image/png');
+          
+          const downloadLink = document.createElement('a');
+          downloadLink.href = pngUrl;
+          downloadLink.download = 'f88-claims-ontology.png';
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          
+          URL.revokeObjectURL(svgUrl);
+        };
+        img.onerror = function(e) {
+          console.error("Image loading failed for PNG export:", e);
+          alert("Lỗi khi chuyển SVG sang PNG. Có thể do tài nguyên bên ngoài (như font chữ hoặc icon FontAwesome).");
+        };
+        img.src = svgUrl;
+      });
+  } catch (err) {
+    console.error("Export PNG error:", err);
+    alert("Không thể export PNG: " + err.message);
+  }
 }
 
 // 3. Export PDF
 function exportToPDF() {
-  alert("Vui lòng sử dụng script export.js để sinh file PDF chất lượng cao, hoặc Ctrl+P để in trang ra PDF.");
+  window.print();
 }

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>F88 Claims Management System - Ontology & Knowledge Graph</title>
+  <!-- Google Fonts - Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-logo">
+      <div class="logo-icon"><i class="fa-solid fa-circle-nodes"></i></div>
+      <div class="logo-text">
+        <h1>F88 Claims Ontology</h1>
+        <span>Enterprise Knowledge Graph & Data Models</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button id="btn-toggle-theme" class="btn btn-secondary" title="Chuyển giao diện Sáng/Tối">
+        <i class="fa-solid fa-moon"></i> Giao diện
+      </button>
+      <button id="btn-reset-view" class="btn btn-secondary" title="Reset Viewport">
+        <i class="fa-solid fa-arrows-to-eye"></i> Reset View
+      </button>
+      <div class="export-dropdown">
+        <button class="btn btn-primary dropdown-toggle">
+          <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <div class="dropdown-menu">
+          <button id="btn-export-svg"><i class="fa-solid fa-file-code text-cyan"></i> Export SVG</button>
+          <button id="btn-export-png"><i class="fa-solid fa-file-image text-green"></i> Export PNG</button>
+          <button id="btn-export-pdf"><i class="fa-solid fa-file-pdf text-red"></i> Export PDF</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="app-sidebar">
+      <!-- Search & Filters -->
+      <div class="sidebar-section search-section">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input type="text" id="search-input" placeholder="Tìm kiếm Object, Property...">
+          <button id="search-clear-btn" class="hidden"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="filter-options">
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-datatypes" checked>
+            <span class="slider"></span>
+            <span class="label-text">Hiển thị Datatype</span>
+          </label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="toggle-cross-domain" checked>
+            <span class="slider"></span>
+            <span class="label-text">Liên kết liên Domain</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Selected Item Details / Placeholder -->
+      <div class="sidebar-section details-section">
+        <div id="details-placeholder" class="details-placeholder">
+          <div class="placeholder-icon"><i class="fa-solid fa-circle-info"></i></div>
+          <h3>Chi tiết Ontology Object</h3>
+          <p>Click vào một Object trên sơ đồ hoặc tìm kiếm để xem thông tin chi tiết về Thuộc tính, Business Rules, và Action Events.</p>
+        </div>
+        
+        <div id="details-content" class="details-content hidden">
+          <!-- Populated dynamically by render.js -->
+        </div>
+      </div>
+    </aside>
+
+    <!-- Graph View Area -->
+    <main class="graph-viewer">
+      <!-- Legend Panel -->
+      <div class="legend-panel hidden">
+        <div class="legend-header">
+          <h4>Domains Nghiệp Vụ (10)</h4>
+          <button id="btn-clear-domain-filter" class="btn-text hidden">Bỏ chọn</button>
+        </div>
+        <div id="legend-list" class="legend-list">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- Zoom Controls overlay -->
+      <div class="zoom-controls">
+        <button id="zoom-in" title="Phóng to"><i class="fa-solid fa-plus"></i></button>
+        <button id="zoom-out" title="Thu nhỏ"><i class="fa-solid fa-minus"></i></button>
+        <button id="zoom-fit" title="Phóng vừa khung hình"><i class="fa-solid fa-expand"></i></button>
+      </div>
+
+      <!-- SVG Graph Canvas -->
+      <div id="canvas-container" class="canvas-container">
+        <svg id="graph-svg" width="100%" height="100%">
+          <defs>
+            <!-- Grid pattern for background -->
+            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="var(--grid-stroke)" stroke-width="1"/>
+            </pattern>
+            <!-- Marker for arrows -->
+            <marker id="arrow-D01" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#3b82f6"/>
+            </marker>
+            <marker id="arrow-D02" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#10b981"/>
+            </marker>
+            <marker id="arrow-D03" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#8b5cf6"/>
+            </marker>
+            <marker id="arrow-D04" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#f97316"/>
+            </marker>
+            <marker id="arrow-D05" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#06b6d4"/>
+            </marker>
+            <marker id="arrow-D06" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#ef4444"/>
+            </marker>
+            <marker id="arrow-D07" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#eab308"/>
+            </marker>
+            <marker id="arrow-D08" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#ec4899"/>
+            </marker>
+            <marker id="arrow-D09" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+            </marker>
+            <marker id="arrow-D10" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#14b8a6"/>
+            </marker>
+            <marker id="arrow-default" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+            </marker>
+            <!-- Glow filter for selected items -->
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="8" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+          
+          <!-- Background Grid -->
+          <rect width="100%" height="100%" fill="url(#grid)" />
+          
+          <!-- Graph root group for panning and zooming -->
+          <g id="viewport-group">
+            <g id="edges-group"></g>
+            <g id="domains-group"></g>
+            <g id="nodes-group"></g>
+          </g>
+        </svg>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ELK JS Layout Engine -->
+  <script src="elk.min.js"></script>
+  <!-- Ontology Data loaded as global window variable -->
+  <script src="ontology-data.js"></script>
+  <!-- Main rendering logic -->
+  <script src="render.js"></script>
+</body>
+</html>

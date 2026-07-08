@@ -1,0 +1,13 @@
+import pandas as pd
+df = pd.read_excel('Ontology_Claims_F88.xlsx', sheet_name='02_ObjectProperties')
+print("Columns:", list(df.columns))
+print("Property Classification unique values:")
+print(df['Property Classification'].value_counts())
+print("Required? unique values:")
+print(df['Required?'].value_counts())
+print("Sensitive? unique values:")
+print(df['Sensitive?'].value_counts())
+print("Core/Dynamic/Snapshot/Audit unique values:")
+print(df['Core/Dynamic/Snapshot/Audit'].value_counts())
+print("First 20 properties of Partner:")
+print(df[df['Object Type'] == 'Partner'][['Property Name', 'Data Type đề xuất', 'Property Classification', 'Required?']])

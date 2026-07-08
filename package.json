@@ -1,0 +1,13 @@
+{
+  "name": "claim-ontology",
+  "version": "1.0.0",
+  "description": "Ontology Claims Visualization Platform",
+  "scripts": {
+    "install-web": "npm install",
+    "export": "node export.js"
+  },
+  "dependencies": {
+    "elkjs": "^0.9.3",
+    "puppeteer": "^22.12.0"
+  }
+}
